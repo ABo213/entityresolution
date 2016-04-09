@@ -1,6 +1,7 @@
 import json
-import csv
 import os.path
+
+import distance
 
 DATA_DIR = 'data'
 ENTITY_FILE0 = os.path.join(DATA_DIR, 'locu_train_hard.json')
