@@ -30,16 +30,17 @@ class Explorer:
         id0, id1 = self.matches[i]
         return self.entities0[id0], self.entities1[id1]
 
-    def difference(self, field='name', limit=None):
+    def difference(self, field='name', dis=lambda a, b: a != b,
+                   threshold = 0.5, limit=None):
         count = 0
         for i in range(len(self.matches)):
             e0, e1 = self.pair(i)
-            if e0[field] != e1[field]:
-                print(i, ': ', e0[field],' -- ', e1[field])
+            d = dis(e0[field], e1[field])
+            if d > threshold:
+                print('%d: (%f) %r ~ %r' % (i, d, e0[field], e1[field]))
                 count += 1
                 if limit is not None and count == limit:
                     break
-
 
 
 if __name__ == '__main__':
