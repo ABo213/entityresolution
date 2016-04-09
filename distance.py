@@ -1,5 +1,5 @@
 from scipy.spatial import distance
-
+import re
 def edit_dist(word1, word2):
     l1, l2 = len(word1)+1, len(word2)+1
     pre = [0 for _ in xrange(l2)]
@@ -22,3 +22,9 @@ def jaccard_dist(l_a, l_b):
     s_union = s_a.union(s_b)
     distance = float(len(s_intersect))/float(len(s_union))
     return distance
+    
+def dist_phone(a, b):
+    
+    a = a and re.subn('[^\d]', '',a)[0]
+    b = b and re.subn('[^\d]', '',b)[0]
+    return a!=b

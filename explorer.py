@@ -46,4 +46,4 @@ class Explorer:
 
 if __name__ == '__main__':
     explorer = Explorer()
-    explorer.difference()
+    explorer.difference('phone',dis=distance.dist_phone)
