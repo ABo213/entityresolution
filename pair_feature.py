@@ -9,17 +9,18 @@ from distance import dist_address
 
 
 dist_func_list =[
-    (my_jaccard_dist, 'name')
-    (edit_dist, 'name')
-    (dist_phone, 'phone')
+    (my_jaccard_dist, 'name'),
+    (edit_dist, 'name'),
+    (dist_phone, 'phone'),
     (dist_address, 'street_address')
 ]
 
-def con_f(a, b):
+def generate_feature_list(a, b):
     features = []
     for func, field in dist_func_list:
         features.append(func(a[field], b[field]))
     return features
+    
 
 
  

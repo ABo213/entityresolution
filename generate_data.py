@@ -10,11 +10,11 @@ def generate_no_match(entities_a, entities_b, match_entity, size):
     index2 = 0
     for i in range(size):
         id1 = id_a_list[index1]
-        id2 = id_a_list[index2]
+        id2 = id_b_list[index2]
         while tuple([id1, id2]) in match_entity:
             index1 += 1
             id1 = id_a_list[index1]
-        no_matches.append(tuple([id1, id2]))
+        no_matches.append(tuple([str(id1), str(id2)]))
         index1 += 1
         index2 += 1
     return no_matches
