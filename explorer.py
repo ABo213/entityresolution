@@ -10,6 +10,8 @@ DATA_DIR = 'data'
 ENTITY_FILE0 = os.path.join(DATA_DIR, 'locu_train_hard.json')
 ENTITY_FILE1 = os.path.join(DATA_DIR, 'foursquare_train_hard.json')
 MATCH_FILE = os.path.join(DATA_DIR, 'matches_train_hard.csv')
+TEST_FILE0 = os.path.join(DATA_DIR, 'locu_test_hard.json')
+TEST_FILE1 = os.path.join(DATA_DIR, 'foursquare_test_hard.json')
 
 
 class Explorer:
@@ -72,8 +74,24 @@ class Explorer:
         return ret
     def test():
         pass
-
-
+    
+class Test(Explorer):
+    def __init__(self, f0=TEST_FILE0, f1=TEST_FILE1):
+        super(Test, self).__init__()
+        self.tests0 = {}
+        for entity in json.load(open(f0)):
+            id = entity['id']
+            entity.pop('id')
+            self.tests0[id] = entity
+        self.tests1 = {}
+        for entity in json.load(open(f1)):
+            id = entity['id']
+            entity.pop('id')
+            self.tests1[id] = entity
+    def test_match():
+        
+        
+            
 
 if __name__ == '__main__':
     explorer = Explorer()
