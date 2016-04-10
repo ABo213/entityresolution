@@ -28,3 +28,26 @@ def dist_phone(a, b):
     a = a and re.subn('[^\d]', '',a)[0]
     b = b and re.subn('[^\d]', '',b)[0]
     return a!=b
+    
+def dist_address(a, b):
+    sub_list =[
+        ('West', 'W.'),
+        ('South', 'S.'),
+        ('East', 'E.'),
+        ('(?<=[\d])th',''),
+        ('St.',''),
+        ('Ave.','')
+    ]
+    for i in sub_list:
+         a = a and re.subn(i[0], i[1],a)[0]
+         b = b and re.subn(i[0], i[1],b)[0]
+    return a!=b
+  
+def my_jaccard_dist(name_a, name_b):
+    name_a = name_a.lower()
+    name_b = name_b.lower()
+    name_a_list = re.subn('[^\w]',' ',name_a)[0].split()
+    name_b_list = re.subn('[^\w]',' ',name_b)[0].split()
+    name_jaccard = jaccard_dist(name_a_list, name_b_list)
+    return name_jaccard  
+    

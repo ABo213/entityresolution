@@ -31,7 +31,7 @@ class Explorer:
         id0, id1 = self.matches[i]
         return self.entities0[id0], self.entities1[id1]
 
-    def difference(self, field='name', dis=lambda a, b: a != b,
+    def difference(self, field='phone', dis=lambda a, b: a != b,
                    threshold = 0.5, limit=None):
         count = 0
         for i in range(len(self.matches)):
@@ -46,4 +46,4 @@ class Explorer:
 
 if __name__ == '__main__':
     explorer = Explorer()
-    explorer.difference('phone',dis=distance.dist_phone)
+    explorer.difference()
