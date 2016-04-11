@@ -1,19 +1,20 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Apr 10 15:52:25 2016
-
-@author: huisu
-"""
+from sklearn import tree
 from sklearn import svm
 
-def mysvm(y,X,yt,Xt):
+def svm_model(y,X):
     clf = svm.SVC()
     clf.fit(X, y)
+    return clf
+def svm_predict(clf,Xt):
     y_new = clf.predict(Xt)
-    count = 0
-    for i in range(len(y_new)):
-        if y_new[i] == yt[i]:
-            count+= 1
-    return float(count)/len(y_new)
+    return y_new[0]
     
+
+def decisiontree_model(y, X):
+    clf = tree.DecisionTreeClassifier()
+    clf = clf.fit(X, y)
+    return clf
     
+def decisiontree_predict(clf, Xt):
+    y_new = clf.predict(Xt)
+    return y_new[0]
