@@ -9,14 +9,28 @@ def test_model(model):
     matches = []
     test_entity_a, test_entity_b = data_read(TEST_FILE0, TEST_FILE1)
     for entity0 in test_entity_a:
+        #match_pair = []
+        match_dict = {}
         for entity1 in test_entity_b:
             features = generate_feature_list(test_entity_a[entity0],test_entity_b[entity1])
             if features[-1] > 0.02:
                 continue
-            pred = models.svm_predict(model,[features])
-            #pred = models.decisiontree_predict(model,[features])
+            pred, prob = models.svm_predict(model,[features])
             if int(pred):
-                matches.append((entity0,entity1))
+                match_dict[prob] = entity1
+                #matches.append((entity0,entity1))
+                #match_pair.append((entity0,entity1))
+        #if len(match_pair)>1:
+            #mulitmatch += match_pair
+        if len(match_dict) > 0:
+            match_prob = sorted(match_dict.keys(),reverse = True)
+            #if len(match_dict) == 1:
+            matches.append((entity0, match_dict[match_prob[0]]))
+            #else:
+            #    for i in range(2):
+            #        matched_entity = match_dict[match_prob[i]]
+            #        matches.append((entity0, matched_entity))
+        
     
     f = open("output.csv",'w+')
     f.write("locu_id,foursquare_id\n")

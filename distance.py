@@ -1,4 +1,6 @@
 from scipy.spatial import distance
+from sklearn.feature_extraction.text import TfidfVectorizer as TFIDF
+from sklearn.feature_selection import SelectKBest, chi2
 import re
 def edit_dist(word1, word2):
     l1, l2 = len(word1)+1, len(word2)+1
@@ -25,15 +27,14 @@ def jaccard_dist(l_a, l_b):
     s_union = s_a.union(s_b)
     distance = 1 - float(len(s_intersect))/float(len(s_union))
     return distance
-    
+#regard none as 0    
 def dist_phone1(a, b):
     
     a = a and re.subn('[^\d]', '',a)[0]
     b = b and re.subn('[^\d]', '',b)[0]
-    #return 0.5 * (not a or not b) or float(a!=b)
-
-    return (not (not a or not b)) or float(a!=b)
-
+    return (not (not a or not b)) and float(a!=b)
+    
+#regard none as 1   
 def dist_phone2(a, b):
     
     a = a and re.subn('[^\d]', '',a)[0]
@@ -41,12 +42,13 @@ def dist_phone2(a, b):
     #return 0.5 * (not a or not b) or float(a!=b)
     return  (not a or not b) or float(a!=b)
     
-def dist_address(a, b):
+def dist_address1(a, b):
     sub_list =[
         ('West', 'W.'),
         ('South', 'S.'),
         ('East', 'E.'),
         ('(?<=[\d])th',''),
+        ('Square', 'Sq.'),
         ('St.',''),
         ('Ave.','')
     ]
@@ -54,7 +56,21 @@ def dist_address(a, b):
          a = a and re.subn(i[0], i[1],a)[0]
          b = b and re.subn(i[0], i[1],b)[0]
     return  0.5 * (not a or not b) or float(a!=b)*2
-  
+def dist_address2(a, b):
+    sub_list =[
+        ('West', 'W.'),
+        ('South', 'S.'),
+        ('East', 'E.'),
+        ('(?<=[\d])th',''),
+        ('Square', 'Sq.'),
+        ('St.',''),
+        ('Ave.','')
+    ]
+    for i in sub_list:
+         a = a and re.subn(i[0], i[1],a)[0]
+         b = b and re.subn(i[0], i[1],b)[0]
+    return  (not a or not b) or float(a!=b)
+ 
 def my_jaccard_dist(name_a, name_b):
     name_a = name_a.lower()
     name_b = name_b.lower()
@@ -63,3 +79,24 @@ def my_jaccard_dist(name_a, name_b):
     name_jaccard = jaccard_dist(name_a_list, name_b_list)
     return name_jaccard  
     
+#def combined_name_phone_dist(name_a, name_b, phone_a, phone_b):
+#    return 0.5*my_jaccard_dist(name_a, name_b) + 0.25*dist_phone1(phone_a, phone_b) + 0.25*dist_phone2(phone_a, phone_b)
+def fuzzy_address(a,b):
+    sub_list =[
+        ('West', 'W.'),
+        ('South', 'S.'),
+        ('East', 'E.'),
+        ('(?<=[\d])th',''),
+        ('Square', 'Sq.'),
+        ('St.',''),
+        ('Ave.','')
+    ]
+    for i in sub_list:
+         a = a and re.subn(i[0], i[1],a)[0]
+         b = b and re.subn(i[0], i[1],b)[0]
+    return  0.5 * (not a or not b) or my_jaccard_dist(a,b)*4
+
+def tf_idf_my_jaccard_dist(name_a, name_b):
+    
+    pass
+ 
