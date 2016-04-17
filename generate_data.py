@@ -1,5 +1,5 @@
 import random
-
+random.seed(2)
 def generate_no_match(entities_a, entities_b, match_entity, size):
     no_matches = []
     id_a_list = entities_a.keys()

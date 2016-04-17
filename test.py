@@ -5,16 +5,24 @@ TEST_FILE1 = os.path.join(DATA_DIR, 'foursquare_test_hard.json')
 from data_reader import data_read
 from pair_feature import generate_feature_list
 import models
+from test_bucket import *
 def test_model(model):
     matches = []
     test_entity_a, test_entity_b = data_read(TEST_FILE0, TEST_FILE1)
+    bucketB = Bucket(test_entity_b,0.025)
+    for entity in test_entity_b:
+        bucketB.addbucket(test_entity_b[entity])
     for entity0 in test_entity_a:
         #match_pair = []
         match_dict = {}
-        for entity1 in test_entity_b:
-            features = generate_feature_list(test_entity_a[entity0],test_entity_b[entity1])
-            if features[-1] > 0.02:
-                continue
+        if test_entity_a[entity0]["longitude"] and test_entity_a[entity0]["latitude"]:
+            bucket_entities = bucketB.getbucket(test_entity_a[entity0]["longitude"],test_entity_a[entity0]["latitude"])
+        else:
+            bucket_entities = test_entity_b
+        for entity1 in bucket_entities:
+            features = generate_feature_list(test_entity_a[entity0],bucket_entities[entity1])
+           # if features[-1] > 0.02:
+           #     continue
             pred, prob = models.svm_predict(model,[features])
             if int(pred):
                 match_dict[prob] = entity1

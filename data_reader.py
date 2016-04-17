@@ -9,7 +9,7 @@ def data_read(f0, f1):
     entities1 = {}
     for entity in json.load(open(f1)):
         id = entity['id']
-        entity.pop('id')
+       # entity.pop('id')
         entities1[id] = entity
     return(entities0, entities1)
         
