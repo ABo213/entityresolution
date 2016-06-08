@@ -1,0 +1,7 @@
+# input and ouput folders
+data/
+output/
+
+# python bytecode
+*.pyc
+
