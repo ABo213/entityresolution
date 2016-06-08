@@ -5,3 +5,5 @@ output/
 # python bytecode
 *.pyc
 
+# IDE files
+.idea/
