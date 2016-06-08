@@ -2,6 +2,9 @@
 data/
 output/
 
+# test
+test/
+
 # python bytecode
 *.pyc
 
