@@ -16,11 +16,11 @@ def jaccard_dist(a, b):
     return (float(len(a ^ b)) + 3) / (float(len(a | b)) + 3)
 
 
-def isna_dist(a, b):
+def has_na(a, b):
     return a is None or b is None
 
 
-def ne_dist(a, b):
+def ne(a, b):
     return a != b
 
 

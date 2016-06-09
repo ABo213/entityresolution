@@ -13,7 +13,7 @@ def pair_filter(a, b):
            metrics.geo_dist(a['latitude'], b['latitude']) < 0.01
 
 feature_functions = [
-    ('phone', metrics.ne_dist),
+    ('phone', metrics.ne),
     ('name', metrics.jaccard_dist),
     ('street_address', metrics.edit_dist),
     ('website', metrics.edit_dist),
@@ -23,13 +23,13 @@ feature_functions = [
 
 
 def extract(a, b, ffs = feature_functions):
-    return [func(a[field], b[field]) if not metrics.isna_dist(a[field], b[
+    return [func(a[field], b[field]) if not metrics.has_na(a[field], b[
         field]) else float('nan') for field, func in ffs]
 
 
 class Trainer:
     def __init__(self, f0, f1, fm, filter=pair_filter, extracter=extract):
-        data = entity_data.EntityData(f0, f1, fm)
+        data = entity_data.EntitiesPairData(f0, f1, fm)
         self.eset0 = data.entities0
         self.eset1 = data.entities1
         self.eset1bucket = None
