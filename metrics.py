@@ -17,7 +17,7 @@ def jaccard_dist(a, b):
 
 
 def has_na(a, b):
-    return a is None or b is None
+    return not(a and b)
 
 
 def ne(a, b):

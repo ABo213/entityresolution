@@ -1,22 +1,28 @@
 import json
+import re
+import unicodedata
 
 
 class Restaurant:
+
     attr_names = (
-        'id', 'name', 'longitude', 'latitude', 'street_address', 'phone',
-        'website'
+        'id', 'name', 'longitude', 'latitude', 'street_address', 'x', 'y'
     )
 
     def __init__(self, attr_dict):
         self.id = attr_dict['id']
-        self.name = attr_dict.get('name')
-        self.street_address = attr_dict.get('street_address')
-        self.phone = attr_dict.get('phone')
-        self.website = attr_dict.get('website')
-        self.x = attr_dict.get('longitude')
-        self.y = attr_dict.get('latitude')
-        self.x = float(self.x) if self.x else None
-        self.y = float(self.y) if self.y else None
+        self.name = attr_dict['name']
+        self.street_address = attr_dict['street_address']
+        self.phone = attr_dict['phone']
+        self.website = attr_dict['website']
+        self.x = attr_dict['longitude']
+        self.y = attr_dict['latitude']
+        self.x = float(self.x or 'nan')
+        self.y = float(self.y or 'nan')
+
+    def __getitem__(self, item):
+        if item in self.attr_names:
+            return getattr(self, item)
 
     def __repr__(self):
         return str(self)
@@ -39,7 +45,7 @@ class EntitiesPairData:
         self.entity_dict1 = {e['id']: Restaurant(e) for e in entity_seq1}
 
     @classmethod
-    def from_json(cls, file0_path, file1_path):
+    def from_json(cls, file0_path, file1_path, clean=True):
         """
         load the data from two json files.
         :param file0_path: path to one file
@@ -47,45 +53,35 @@ class EntitiesPairData:
         :return: an instance of the class
         """
         with open(file0_path) as f0, open(file1_path) as f1:
-            data = cls(json.load(f0), json.load(f1))
+            seq0, seq1 = json.load(f0), json.load(f1)
+            if clean:
+                for seq in (seq0, seq1):
+                    for e in seq:
+                        cls._clean_entity(e)
+            data = cls(seq0, seq1)
         return data
 
-
-    # def preprocess(self):
-    #     for e in self.entities0.values():
-    #         self._process_entity(e)
-    #     for e in self.entities1.values():
-    #         self._process_entity(e)
-
-    # @staticmethod
-    # def _process_entity(e):
-    #     e['phone'] = re.subn(r'\D', '', e['phone'])[0] if e['phone'] else None
-    #
-    #     e['postal_code'] = e['postal_code'] if e['postal_code'][:5] else '     '
-    #
-    #     name = unicodedata.normalize('NFKD', e['name']).lower()
-    #     name = re.subn('[^ a-z0-9]', '', name)[0]
-    #     e['name'] = set(name.split()) or None
-    #
-    #     address = e['street_address'].lower()
-    #     address = re.sub('west', 'w.', address)
-    #     address = re.sub('east', 'e.', address)
-    #     address = re.sub('south', 's.', address)
-    #     address = re.sub('north', 'n.', address)
-    #     address = re.sub('[^ a-z0-9]', '', address)
-    #     e['street_address'] = address or None
-    #
-    #     website = e['website']
-    #     website = re.sub(r'(https?://)?(www.)?', '', website)
-    #     website = re.sub(r'\..*', '', website)
-    #     e['website'] = website or None
-    #
-    # @staticmethod
-    # def _read_entity(e, entities_dict):
-    #     id = e.pop('id')
-    #     e['longitude'] = e['longitude'] and float(e['longitude'])
-    #     e['latitude'] = e['latitude'] and float(e['latitude'])
-    #     entities_dict[id] = e
+    @staticmethod
+    def _clean_entity(e):
+        # keep only digits
+        e['phone'] = re.subn(r'\D', '', str(e['phone']))[0]
+        # remove non-English characters, convert to lowercase, and store as set
+        name = unicodedata.normalize('NFD', e['name']).lower()
+        name = re.subn('[^ a-z0-9]', '', name)[0]
+        e['name'] = set(name.split())
+        # convert to lowercase, use abbr., and remove non-English characters
+        address = e['street_address'].lower()
+        address = re.sub('west', 'w.', address)
+        address = re.sub('east', 'e.', address)
+        address = re.sub('south', 's.', address)
+        address = re.sub('north', 'n.', address)
+        address = re.sub('[^ .a-z0-9]', '', address)
+        e['street_address'] = address
+        # keep only the domain
+        website = e['website']
+        website = re.sub(r'(https?://)?(www.)?', '', website)
+        website = re.sub(r'\..*', '', website)
+        e['website'] = website
 
 
 def load_matches_from_csv(csv_file):

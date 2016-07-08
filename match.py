@@ -1,4 +1,5 @@
 from collections import defaultdict
+import math
 
 import numpy as np
 from sklearn.svm import SVC
@@ -9,16 +10,16 @@ import metrics
 
 
 def pair_filter(a, b):
-    return metrics.geo_dist(a['longitude'], b['longitude']) < 0.01 and \
-           metrics.geo_dist(a['latitude'], b['latitude']) < 0.01
+    return metrics.geo_dist(a.x, b.x) < 0.01 and \
+           metrics.geo_dist(a.y, b.y) < 0.01
 
 feature_functions = [
     ('phone', metrics.ne),
     ('name', metrics.jaccard_dist),
     ('street_address', metrics.edit_dist),
     ('website', metrics.edit_dist),
-    ('longitude', metrics.num1p_dist),
-    ('latitude', metrics.num1p_dist)
+    ('x', metrics.num1p_dist),
+    ('y', metrics.num1p_dist)
 ]
 
 
@@ -28,12 +29,13 @@ def extract(a, b, ffs = feature_functions):
 
 
 class Trainer:
+
     def __init__(self, f0, f1, fm, filter=pair_filter, extracter=extract):
-        data = entity_data.EntitiesPairData(f0, f1, fm)
-        self.eset0 = data.entities0
-        self.eset1 = data.entities1
+        data = entity_data.EntitiesPairData.from_json(f0, f1)
+        self.eset0 = data.entity_dict0
+        self.eset1 = data.entity_dict1
         self.eset1bucket = None
-        self.matches = set(data.matches)
+        self.matches = fm and set(entity_data.load_matches_from_csv(fm))
         self.filter = filter
         self.extracter=extracter
         self.x = None
@@ -44,16 +46,17 @@ class Trainer:
     def bucketify_e1(self):
         buckets = defaultdict(dict)
         for id, e in self.eset1.items():
-            if e['longitude'] is None or e['latitude'] is None: continue
-            key = (int(e['longitude'] * 100), int(e['latitude'] * 100))
+            if e.x is None or e.y is None: continue
+            key = (int(e.x * 100), int(e.y * 100))
             buckets[key][id] = e
         self.eset1bucket = dict(buckets)
 
     def _pair_generator_from_bucket(self):
         self.bucketify_e1()
         for id0, e0 in self.eset0.items():
-            if e0['longitude'] is None or e0['latitude'] is None: continue
-            x, y = (int(e0['longitude'] * 100), int(e0['latitude'] * 100))
+            if math.isnan(e0.x) or math.isnan(e0.y):
+                continue
+            x, y = (int(e0.x * 100), int(e0.y * 100))
             for dx in (-1, 0, 1):
                 for dy in (-1, 0, 1):
                     for id1, e1 in self.eset1bucket.get((x + dx, y + dy), {}).items():
@@ -91,6 +94,7 @@ class Trainer:
 
 
 class Matcher:
+
     def __init__(self):
         self.classifier = None
         self.x = None
@@ -118,6 +122,3 @@ class Matcher:
             for m, pair in zip(self.predict, self.ids):
                 if m:
                     f.write('%s,%s\n' % pair)
-
-
-
